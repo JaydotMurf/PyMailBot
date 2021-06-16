@@ -1,2 +1,2 @@
-# small-scale-python
+# About
 Python-Project-Drawer
