@@ -1,43 +1,22 @@
-# Send emails with python using smtplib
 
-# Import smtplib for the actual sending function
-import smtplib
-import ssl
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import csv, smtplib, ssl
 from getpass import getpass
-import fulltext
 
+port = 465
+server = "smtp.gmail.com"
+message = """Subject: Your grade
 
-sender_email = "murftestdevops@gmail.com"
-receiver_email = "jerraillmurphy2012@gmail.com"
-email_subject = "Blick"
+Hi {name}, your grade is {grade}"""
 
-port = 587
-smtp_server = "smtp.gmail.com"
-password = getpass()
-
+from_address = "murftestdevops@gmail.com"
+password = getpass() # Prompt the user for a password without echoing
 context = ssl.create_default_context()
-# Open the DOC file that contains email body.
 
-message = MIMEMultipart('alternative')
-message['From'] = sender_email
-message['To'] = receiver_email
-message['Subject'] = email_subject
-
-text = fulltext.get('FormatedEmail.docx', None)
-
-html =
-
-try:
-    server = smtplib.SMTP(smtp_server, port)
-    server.ehlo()
-    server.starttls(context=context)
-    server.ehlo()
-    server.login(sender_email, password)
-    print("GOOD LOGIN")
-    server.sendmail(sender_email, receiver_email, message.as_string())
-except Exception as e:
-    print(e)
-finally:
-    server.quit()
+with smtplib.SMTP_SSL(server, port, context=context) as server:
+    server.login(from_address, password)
+    with open("contact_list.csv".strip()) as file: # Import csv and strip white space
+        reader = csv.reader(file) # Makes it easy to read a CSV file line by line 
+        next(reader)  # Skip header row
+        for name, email, grade in reader:
+          print(f"Sending email to {name}")
+          server.sendmail(from_address,email,message.format(name=name,grade=grade),)
